@@ -19,6 +19,7 @@ import type { Column } from 'drizzle-orm';
 import type { PgArray } from 'drizzle-orm/pg-core';
 import { capitalize } from '../case-ops';
 import type { ConvertedColumn } from './types';
+import { GraphQLJson } from './GraphQLJson';
 
 const allowedNameChars = /^[a-zA-Z0-9_]+$/;
 
@@ -28,10 +29,15 @@ const generateEnumCached = (column: Column, columnName: string, tableName: strin
 
 	const gqlEnum = new GraphQLEnumType({
 		name: `${capitalize(tableName)}${capitalize(columnName)}Enum`,
-		values: Object.fromEntries(column.enumValues!.map((e, index) => [allowedNameChars.test(e) ? e : `Option${index}`, {
-			value: e,
-			description: `Value: ${e}`,
-		}])),
+		values: Object.fromEntries(
+			column.enumValues!.map((e, index) => [
+				allowedNameChars.test(e) ? e : `Option${index}`,
+				{
+					value: e,
+					description: `Value: ${e}`,
+				},
+			]),
+		),
 	});
 
 	enumMap.set(column, gqlEnum);
@@ -67,10 +73,10 @@ const columnToGraphQLCore = (
 		case 'json':
 			return column.columnType === 'PgGeometryObject'
 				? {
-					type: isInput ? geoXyInputType : geoXyType,
-					description: 'Geometry points XY',
-				}
-				: { type: GraphQLString, description: 'JSON' };
+						type: isInput ? geoXyInputType : geoXyType,
+						description: 'Geometry points XY',
+				  }
+				: { type: GraphQLJson, description: 'JSON' };
 		case 'date':
 			return { type: GraphQLString, description: 'Date' };
 		case 'string':
@@ -80,11 +86,11 @@ const columnToGraphQLCore = (
 		case 'bigint':
 			return { type: GraphQLString, description: 'BigInt' };
 		case 'number':
-			return is(column, PgInteger)
-					|| is(column, PgSerial)
-					|| is(column, MySqlInt)
-					|| is(column, MySqlSerial)
-					|| is(column, SQLiteInteger)
+			return is(column, PgInteger) ||
+				is(column, PgSerial) ||
+				is(column, MySqlInt) ||
+				is(column, MySqlSerial) ||
+				is(column, SQLiteInteger)
 				? { type: GraphQLInt, description: 'Integer' }
 				: { type: GraphQLFloat, description: 'Float' };
 		case 'buffer':

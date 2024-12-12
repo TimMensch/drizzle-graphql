@@ -38,7 +38,7 @@ async function createDockerDB(ctx: Context): Promise<string> {
 	const pgContainer = (ctx.pgContainer = await docker.createContainer({
 		Image: image,
 		Env: ['POSTGRES_PASSWORD=postgres', 'POSTGRES_USER=postgres', 'POSTGRES_DB=postgres'],
-		name: `drizzle-graphql-pg-custom-tests-${uuid()}`,
+ 		name: `drizzle-graphql-pg-custom-tests-${uuid()}`,
 		HostConfig: {
 			AutoRemove: true,
 			PortBindings: {
@@ -172,6 +172,8 @@ beforeEach(async () => {
 		"id" serial PRIMARY KEY NOT NULL,
 		"name" text NOT NULL,
 		"email" text,
+		"config_array" jsonb,
+		"config_object" jsonb,
 		"birthday_string" date,
 		"birthday_date" date,
 		"created_at" timestamp DEFAULT now() NOT NULL,
