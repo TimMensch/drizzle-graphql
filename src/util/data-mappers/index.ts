@@ -25,9 +25,7 @@ export const remapToGraphQLCore = (
 				relationMap,
 			);
 		}
-		if (column.columnType === 'PgGeometry' || column.columnType === 'PgVector') {
-			return value;
-		}
+		if (column.columnType === 'PgGeometry' || column.columnType === 'PgVector') return value;
 
 		return value.map((arrVal) => remapToGraphQLCore(key, arrVal, tableName, column, relationMap));
 	}
@@ -62,13 +60,7 @@ export const remapToGraphQLSingleOutput = (
 		if (value === undefined || value === null) {
 			delete queryOutput[key];
 		} else {
-			queryOutput[key] = remapToGraphQLCore(
-				key,
-				value,
-				tableName,
-				table[key as keyof Table]! as Column,
-				relationMap,
-			);
+			queryOutput[key] = remapToGraphQLCore(key, value, tableName, table[key as keyof Table]! as Column, relationMap);
 		}
 	}
 
