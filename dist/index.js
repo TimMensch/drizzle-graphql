@@ -64,12 +64,9 @@ var capitalize = (input) => input.length ? `${input[0].toLocaleUpperCase()}${inp
 import { getTableColumns } from "drizzle-orm";
 import { GraphQLError } from "graphql";
 var remapToGraphQLCore = (key, value, tableName, column, relationMap) => {
-  if (value instanceof Date)
-    return value.toISOString();
-  if (value instanceof Buffer)
-    return Array.from(value);
-  if (typeof value === "bigint")
-    return value.toString();
+  if (value instanceof Date) return value.toISOString();
+  if (value instanceof Buffer) return Array.from(value);
+  if (typeof value === "bigint") return value.toString();
   if (Array.isArray(value)) {
     const relations = relationMap?.[tableName];
     if (relations?.[key]) {
@@ -80,8 +77,7 @@ var remapToGraphQLCore = (key, value, tableName, column, relationMap) => {
         relationMap
       );
     }
-    if (column.columnType === "PgGeometry" || column.columnType === "PgVector")
-      return value;
+    if (column.columnType === "PgGeometry" || column.columnType === "PgVector") return value;
     return value.map((arrVal) => remapToGraphQLCore(key, arrVal, tableName, column, relationMap));
   }
   if (typeof value === "object") {
@@ -121,8 +117,7 @@ var remapFromGraphQLCore = (value, column, columnName) => {
   switch (column.dataType) {
     case "date": {
       const formatted = new Date(value);
-      if (Number.isNaN(formatted.getTime()))
-        throw new GraphQLError(`Field '${columnName}' is not a valid date!`);
+      if (Number.isNaN(formatted.getTime())) throw new GraphQLError(`Field '${columnName}' is not a valid date!`);
       return formatted;
     }
     case "buffer": {
@@ -132,8 +127,7 @@ var remapFromGraphQLCore = (value, column, columnName) => {
       return Buffer.from(value);
     }
     case "json": {
-      if (column.columnType === "PgGeometryObject")
-        return value;
+      if (column.columnType === "PgGeometryObject") return value;
       try {
         return JSON.parse(value);
       } catch (e) {
@@ -172,8 +166,7 @@ var remapFromGraphQLSingleInput = (queryInput, table) => {
       delete queryInput[key];
     } else {
       const column = getTableColumns(table)[key];
-      if (!column)
-        throw new GraphQLError(`Unknown column: ${key}`);
+      if (!column) throw new GraphQLError(`Unknown column: ${key}`);
       if (value === null && column.notNull) {
         delete queryInput[key];
         continue;
@@ -184,8 +177,7 @@ var remapFromGraphQLSingleInput = (queryInput, table) => {
   return queryInput;
 };
 var remapFromGraphQLArrayInput = (queryInput, table) => {
-  for (const entry of queryInput)
-    remapFromGraphQLSingleInput(entry, table);
+  for (const entry of queryInput) remapFromGraphQLSingleInput(entry, table);
   return queryInput;
 };
 
@@ -229,8 +221,7 @@ var GraphQLJson = new GraphQLScalarType({
 var allowedNameChars = /^[a-zA-Z0-9_]+$/;
 var enumMap = /* @__PURE__ */ new WeakMap();
 var generateEnumCached = (column, columnName, tableName) => {
-  if (enumMap.has(column))
-    return enumMap.get(column);
+  if (enumMap.has(column)) return enumMap.get(column);
   const gqlEnum = new GraphQLEnumType({
     name: `${capitalize(tableName)}${capitalize(columnName)}Enum`,
     values: Object.fromEntries(column.enumValues.map((e, index) => [allowedNameChars.test(e) ? e : `Option${index}`, {
@@ -267,8 +258,7 @@ var columnToGraphQLCore = (column, columnName, tableName, isInput) => {
     case "date":
       return { type: GraphQLString, description: "Date" };
     case "string":
-      if (column.enumValues?.length)
-        return { type: generateEnumCached(column, columnName, tableName) };
+      if (column.enumValues?.length) return { type: generateEnumCached(column, columnName, tableName) };
       return { type: GraphQLString, description: "String" };
     case "bigint":
       return { type: GraphQLString, description: "BigInt" };
@@ -308,10 +298,8 @@ var columnToGraphQLCore = (column, columnName, tableName, isInput) => {
 var drizzleColumnToGraphQLType = (column, columnName, tableName, forceNullable = false, defaultIsNullable = false, isInput = false) => {
   const typeDesc = columnToGraphQLCore(column, columnName, tableName, isInput);
   const noDesc = ["string", "boolean", "number"];
-  if (noDesc.find((e) => e === column.dataType))
-    delete typeDesc.description;
-  if (forceNullable)
-    return typeDesc;
+  if (noDesc.find((e) => e === column.dataType)) delete typeDesc.description;
+  if (forceNullable) return typeDesc;
   if (column.notNull && !(defaultIsNullable && (column.hasDefault || column.defaultFn))) {
     return {
       type: new GraphQLNonNull(typeDesc.type),
@@ -332,8 +320,7 @@ var extractSelectedColumnsFromTree = (tree, table) => {
   const treeEntries = Object.entries(tree);
   const selectedColumns = [];
   for (const [fieldName, fieldData] of treeEntries) {
-    if (!tableColumns[fieldData.name])
-      continue;
+    if (!tableColumns[fieldData.name]) continue;
     selectedColumns.push([fieldData.name, true]);
   }
   if (!selectedColumns.length) {
@@ -348,8 +335,7 @@ var extractSelectedColumnsFromTreeSQLFormat = (tree, table) => {
   const treeEntries = Object.entries(tree);
   const selectedColumns = [];
   for (const [fieldName, fieldData] of treeEntries) {
-    if (!tableColumns[fieldData.name])
-      continue;
+    if (!tableColumns[fieldData.name]) continue;
     selectedColumns.push([fieldData.name, tableColumns[fieldData.name]]);
   }
   if (!selectedColumns.length) {
@@ -424,8 +410,7 @@ var generateColumnFilterValues = (column, tableName, columnName) => {
 };
 var orderMap = /* @__PURE__ */ new WeakMap();
 var generateTableOrderCached = (table) => {
-  if (orderMap.has(table))
-    return orderMap.get(table);
+  if (orderMap.has(table)) return orderMap.get(table);
   const columns = getTableColumns2(table);
   const columnEntries = Object.entries(columns);
   const remapped = Object.fromEntries(
@@ -436,8 +421,7 @@ var generateTableOrderCached = (table) => {
 };
 var filterMap = /* @__PURE__ */ new WeakMap();
 var generateTableFilterValuesCached = (table, tableName) => {
-  if (filterMap.has(table))
-    return filterMap.get(table);
+  if (filterMap.has(table)) return filterMap.get(table);
   const columns = getTableColumns2(table);
   const columnEntries = Object.entries(columns);
   const remapped = Object.fromEntries(
@@ -453,8 +437,7 @@ var generateTableFilterValuesCached = (table, tableName) => {
 };
 var fieldMap = /* @__PURE__ */ new WeakMap();
 var generateTableSelectTypeFieldsCached = (table, tableName) => {
-  if (fieldMap.has(table))
-    return fieldMap.get(table);
+  if (fieldMap.has(table)) return fieldMap.get(table);
   const columns = getTableColumns2(table);
   const columnEntries = Object.entries(columns);
   const remapped = Object.fromEntries(
@@ -468,8 +451,7 @@ var generateTableSelectTypeFieldsCached = (table, tableName) => {
 };
 var orderTypeMap = /* @__PURE__ */ new WeakMap();
 var generateTableOrderTypeCached = (table, tableName) => {
-  if (orderTypeMap.has(table))
-    return orderTypeMap.get(table);
+  if (orderTypeMap.has(table)) return orderTypeMap.get(table);
   const orderColumns = generateTableOrderCached(table);
   const order = new GraphQLInputObjectType2({
     name: `${capitalize(tableName)}OrderBy`,
@@ -480,8 +462,7 @@ var generateTableOrderTypeCached = (table, tableName) => {
 };
 var filterTypeMap = /* @__PURE__ */ new WeakMap();
 var generateTableFilterTypeCached = (table, tableName) => {
-  if (filterTypeMap.has(table))
-    return filterTypeMap.get(table);
+  if (filterTypeMap.has(table)) return filterTypeMap.get(table);
   const filterColumns = generateTableFilterValuesCached(table, tableName);
   const filters = new GraphQLInputObjectType2({
     name: `${capitalize(tableName)}Filters`,
@@ -633,16 +614,14 @@ var extractOrderBy = (table, orderArgs) => {
   for (const [column, config] of Object.entries(orderArgs).sort(
     (a, b) => (b[1]?.priority ?? 0) - (a[1]?.priority ?? 0)
   )) {
-    if (!config)
-      continue;
+    if (!config) continue;
     const { direction } = config;
     res.push(direction === "asc" ? asc(getTableColumns2(table)[column]) : desc(getTableColumns2(table)[column]));
   }
   return res;
 };
 var extractFiltersColumn = (column, columnName, operators) => {
-  if (!operators.OR?.length)
-    delete operators.OR;
+  if (!operators.OR?.length) delete operators.OR;
   const entries = Object.entries(operators);
   if (operators.OR) {
     if (entries.length > 1) {
@@ -651,25 +630,28 @@ var extractFiltersColumn = (column, columnName, operators) => {
     const variants2 = [];
     for (const variant of operators.OR) {
       const extracted = extractFiltersColumn(column, columnName, variant);
-      if (extracted)
-        variants2.push(extracted);
+      if (extracted) variants2.push(extracted);
     }
     return variants2.length ? variants2.length > 1 ? or(...variants2) : variants2[0] : void 0;
   }
   const variants = [];
   for (const [operatorName, operatorValue] of entries) {
-    if (operatorValue === null || operatorValue === false)
-      continue;
+    if (operatorValue === null || operatorValue === false) continue;
     let operator;
     switch (operatorName) {
+      // @ts-ignore
       case "eq":
         operator = operator ?? eq;
+      // @ts-ignore
       case "ne":
         operator = operator ?? ne;
+      // @ts-ignore
       case "gt":
         operator = operator ?? gt;
+      // @ts-ignore
       case "gte":
         operator = operator ?? gte;
+      // @ts-ignore
       case "lt":
         operator = operator ?? lt;
       case "lte":
@@ -677,16 +659,20 @@ var extractFiltersColumn = (column, columnName, operators) => {
         const singleValue = remapFromGraphQLCore(operatorValue, column, columnName);
         variants.push(operator(column, singleValue));
         break;
+      // @ts-ignore
       case "like":
         operator = operator ?? like;
+      // @ts-ignore
       case "notLike":
         operator = operator ?? notLike;
+      // @ts-ignore
       case "ilike":
         operator = operator ?? ilike;
       case "notIlike":
         operator = operator ?? notIlike;
         variants.push(operator(column, operatorValue));
         break;
+      // @ts-ignore
       case "inArray":
         operator = operator ?? inArray;
       case "notInArray":
@@ -699,6 +685,7 @@ var extractFiltersColumn = (column, columnName, operators) => {
         const arrayValue = operatorValue.map((val) => remapFromGraphQLCore(val, column, columnName));
         variants.push(operator(column, arrayValue));
         break;
+      // @ts-ignore
       case "isNull":
         operator = operator ?? isNull;
       case "isNotNull":
@@ -709,11 +696,9 @@ var extractFiltersColumn = (column, columnName, operators) => {
   return variants.length ? variants.length > 1 ? and(...variants) : variants[0] : void 0;
 };
 var extractFilters = (table, tableName, filters) => {
-  if (!filters.OR?.length)
-    delete filters.OR;
+  if (!filters.OR?.length) delete filters.OR;
   const entries = Object.entries(filters);
-  if (!entries.length)
-    return;
+  if (!entries.length) return;
   if (filters.OR) {
     if (entries.length > 1) {
       throw new GraphQLError2(`WHERE ${tableName}: Cannot specify both fields and 'OR' in table filters!`);
@@ -721,15 +706,13 @@ var extractFilters = (table, tableName, filters) => {
     const variants2 = [];
     for (const variant of filters.OR) {
       const extracted = extractFilters(table, tableName, variant);
-      if (extracted)
-        variants2.push(extracted);
+      if (extracted) variants2.push(extracted);
     }
     return variants2.length ? variants2.length > 1 ? or(...variants2) : variants2[0] : void 0;
   }
   const variants = [];
   for (const [columnName, operators] of entries) {
-    if (operators === null)
-      continue;
+    if (operators === null) continue;
     const column = getTableColumns2(table)[columnName];
     variants.push(extractFiltersColumn(column, columnName, operators));
   }
@@ -737,19 +720,16 @@ var extractFilters = (table, tableName, filters) => {
 };
 var extractRelationsParamsInner = (relationMap, tables, tableName, typeName, originField, isInitial = false) => {
   const relations = relationMap[tableName];
-  if (!relations)
-    return void 0;
+  if (!relations) return void 0;
   const baseField = Object.entries(originField.fieldsByTypeName).find(([key, value]) => key === typeName)?.[1];
-  if (!baseField)
-    return void 0;
+  if (!baseField) return void 0;
   const args = {};
   for (const [relName, { targetTableName, relation }] of Object.entries(relations)) {
     const relTypeName = `${isInitial ? capitalize(tableName) : typeName}${capitalize(relName)}Relation`;
     const relFieldSelection = Object.values(baseField).find(
       (field) => field.name === relName
     )?.fieldsByTypeName[relTypeName];
-    if (!relFieldSelection)
-      continue;
+    if (!relFieldSelection) continue;
     const columns = extractSelectedColumnsFromTree(relFieldSelection, tables[targetTableName]);
     const thisRecord = {};
     thisRecord.columns = columns;
@@ -770,8 +750,7 @@ var extractRelationsParamsInner = (relationMap, tables, tableName, typeName, ori
   return args;
 };
 var extractRelationsParams = (relationMap, tables, tableName, info, typeName) => {
-  if (!info)
-    return void 0;
+  if (!info) return void 0;
   return extractRelationsParamsInner(relationMap, tables, tableName, typeName, info, true);
 };
 
@@ -872,8 +851,7 @@ var generateSelectSingle = (db, tableName, tables, relationMap, orderArgs, filte
           with: relationMap[tableName] ? extractRelationsParams(relationMap, tables, tableName, parsedInfo, typeName) : void 0
         });
         const result = await query;
-        if (!result)
-          return void 0;
+        if (!result) return void 0;
         return remapToGraphQLSingleOutput(result, tableName, table, relationMap);
       } catch (e) {
         if (typeof e === "object" && typeof e.message === "string") {
@@ -897,8 +875,7 @@ var generateInsertArray = (db, tableName, table, baseType) => {
     resolver: async (source, args, context, info) => {
       try {
         const input = remapFromGraphQLArrayInput(args.values, table);
-        if (!input.length)
-          throw new GraphQLError3("No values were provided!");
+        if (!input.length) throw new GraphQLError3("No values were provided!");
         await db.insert(table).values(input);
         return { isSuccess: true };
       } catch (e) {
@@ -951,8 +928,7 @@ var generateUpdate = (db, tableName, table, setArgs, filterArgs) => {
       try {
         const { where, set } = args;
         const input = remapFromGraphQLSingleInput(set, table);
-        if (!Object.keys(input).length)
-          throw new GraphQLError3("Unable to update with no values specified!");
+        if (!Object.keys(input).length) throw new GraphQLError3("Unable to update with no values specified!");
         let query = db.update(table).set(input);
         if (where) {
           const filters = extractFilters(table, tableName, where);
@@ -1225,8 +1201,7 @@ var generateSelectSingle2 = (db, tableName, tables, relationMap, orderArgs, filt
           with: relationMap[tableName] ? extractRelationsParams(relationMap, tables, tableName, parsedInfo, typeName) : void 0
         });
         const result = await query;
-        if (!result)
-          return void 0;
+        if (!result) return void 0;
         return remapToGraphQLSingleOutput(result, tableName, table, relationMap);
       } catch (e) {
         if (typeof e === "object" && typeof e.message === "string") {
@@ -1251,8 +1226,7 @@ var generateInsertArray2 = (db, tableName, table, baseType) => {
     resolver: async (source, args, context, info) => {
       try {
         const input = remapFromGraphQLArrayInput(args.values, table);
-        if (!input.length)
-          throw new GraphQLError4("No values were provided!");
+        if (!input.length) throw new GraphQLError4("No values were provided!");
         const parsedInfo = parseResolveInfo2(info, {
           deep: true
         });
@@ -1293,8 +1267,7 @@ var generateInsertSingle2 = (db, tableName, table, baseType) => {
           table
         );
         const result = await db.insert(table).values(input).returning(columns).onConflictDoNothing();
-        if (!result[0])
-          return void 0;
+        if (!result[0]) return void 0;
         return remapToGraphQLSingleOutput(result[0], tableName, table);
       } catch (e) {
         if (typeof e === "object" && typeof e.message === "string") {
@@ -1330,8 +1303,7 @@ var generateUpdate2 = (db, tableName, table, setArgs, filterArgs) => {
           table
         );
         const input = remapFromGraphQLSingleInput(set, table);
-        if (!Object.keys(input).length)
-          throw new GraphQLError4("Unable to update with no values specified!");
+        if (!Object.keys(input).length) throw new GraphQLError4("Unable to update with no values specified!");
         let query = db.update(table).set(input);
         if (where) {
           const filters = extractFilters(table, tableName, where);
@@ -1598,8 +1570,7 @@ var generateSelectSingle3 = (db, tableName, tables, relationMap, orderArgs, filt
           with: relationMap[tableName] ? extractRelationsParams(relationMap, tables, tableName, parsedInfo, typeName) : void 0
         });
         const result = await query;
-        if (!result)
-          return void 0;
+        if (!result) return void 0;
         return remapToGraphQLSingleOutput(result, tableName, table, relationMap);
       } catch (e) {
         if (typeof e === "object" && typeof e.message === "string") {
@@ -1624,8 +1595,7 @@ var generateInsertArray3 = (db, tableName, table, baseType) => {
     resolver: async (source, args, context, info) => {
       try {
         const input = remapFromGraphQLArrayInput(args.values, table);
-        if (!input.length)
-          throw new GraphQLError5("No values were provided!");
+        if (!input.length) throw new GraphQLError5("No values were provided!");
         const parsedInfo = parseResolveInfo3(info, {
           deep: true
         });
@@ -1666,8 +1636,7 @@ var generateInsertSingle3 = (db, tableName, table, baseType) => {
           table
         );
         const result = await db.insert(table).values(input).returning(columns).onConflictDoNothing();
-        if (!result[0])
-          return void 0;
+        if (!result[0]) return void 0;
         return remapToGraphQLSingleOutput(result[0], tableName, table);
       } catch (e) {
         if (typeof e === "object" && typeof e.message === "string") {
@@ -1703,8 +1672,7 @@ var generateUpdate3 = (db, tableName, table, setArgs, filterArgs) => {
           table
         );
         const input = remapFromGraphQLSingleInput(set, table);
-        if (!Object.keys(input).length)
-          throw new GraphQLError5("Unable to update with no values specified!");
+        if (!Object.keys(input).length) throw new GraphQLError5("Unable to update with no values specified!");
         let query = db.update(table).set(input);
         if (where) {
           const filters = extractFilters(table, tableName, where);
@@ -1899,8 +1867,7 @@ var buildSchema = (db, config) => {
     generatorOutput = generateSchemaData2(db, schema, config?.relationsDepthLimit);
   } else if (is6(db, BaseSQLiteDatabase2)) {
     generatorOutput = generateSchemaData3(db, schema, config?.relationsDepthLimit);
-  } else
-    throw new Error("Drizzle-GraphQL Error: Unknown database instance type");
+  } else throw new Error("Drizzle-GraphQL Error: Unknown database instance type");
   const { queries, mutations, inputs, types } = generatorOutput;
   const graphQLSchemaConfig = {
     types: [...Object.values(inputs), ...Object.values(types)],

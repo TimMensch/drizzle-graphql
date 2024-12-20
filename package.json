@@ -8,8 +8,8 @@
     ],
     "description": "Automatically generate GraphQL schema or customizable schema config fields from Drizzle ORM schema",
     "scripts": {
-        "build": "pnpm tsx scripts/build.ts",
-        "b": "pnpm build",
+        "build": "tsx scripts/build.ts",
+        "b": "yarn build",
         "pack": "(cd dist && npm pack --pack-destination ..) && rm -f package.tgz && mv *.tgz package.tgz",
         "publish": "npm publish package.tgz",
         "test": "vitest run",
@@ -22,6 +22,7 @@
     },
     "exports": {
         ".": {
+            "types": "./index.d.ts",
             "import": {
                 "types": "./index.d.ts",
                 "default": "./index.js"
@@ -29,9 +30,7 @@
             "require": {
                 "types": "./index.d.cjs",
                 "default": "./index.cjs"
-            },
-            "types": "./index.d.ts",
-            "default": "./index.js"
+            }
         }
     },
     "license": "Apache-2.0",
@@ -102,5 +101,5 @@
         "drizzle-orm": ">=0.30.9",
         "graphql": ">=16.3.0"
     },
-    "packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1"
+    "packageManager": "yarn@4.5.3+sha512.3003a14012e2987072d244c720506549c1aab73ee728208f1b2580a9fd67b92d61ba6b08fe93f6dce68fd771e3af1e59a0afa28dd242dd0940d73b95fedd4e90"
 }
