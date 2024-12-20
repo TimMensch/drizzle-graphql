@@ -3,9 +3,6 @@
     "type": "module",
     "author": "Drizzle Team",
     "version": "0.8.5",
-    "files": [
-        "dist/"
-    ],
     "description": "Automatically generate GraphQL schema or customizable schema config fields from Drizzle ORM schema",
     "scripts": {
         "build": "tsx scripts/build.ts",
