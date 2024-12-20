@@ -1,11 +1,8 @@
 node_modules
-dist
 *.sqlite
 drizzle.config.ts
 *.tgz
 temp.ts
-dist-dts
-dist.new
 server
 runMysql.ts
 runMysql-old.ts
