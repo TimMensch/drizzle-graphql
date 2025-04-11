@@ -117,10 +117,16 @@ const columnToGraphQLCore = (
 				description: `Array<${innerType.description}>`,
 			};
 		}
-		case 'custom':
-		default:
-			throw new Error(`Drizzle-GraphQL Error: Type ${column.dataType} is not implemented!`);
-	}
+
+        // @ts-expect-error Intentional fallthrough
+        case 'custom':
+            switch ((column as any).sqlName) {
+                case 'tsvector':
+                    return { type: GraphQLString, description: "String" };
+            }
+        default:
+            throw new Error(`Drizzle-GraphQL Error: Type ${column.dataType} is not implemented!`);
+    }
 };
 
 export const drizzleColumnToGraphQLType = <TColumn extends Column, TIsInput extends boolean>(
