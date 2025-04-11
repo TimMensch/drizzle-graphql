@@ -7,6 +7,24 @@ Automatically create GraphQL schema or customizable schema config fields from Dr
 This fork is being maintained by Tim Mensch. The original repo is being very slow to apply PRs, and I'm adding my updates here
 to fix generation errors that are much harder to fix by massaging the output as described below.
 
+### Using the fork:
+
+I'm not currently creating my own npm package, but you can use this fork by adding the following to your `package.json`:
+
+For Yarn:
+```json
+"drizzle-graphql": "TimMensch/drizzle-graphql#dist"
+```
+For npm/pnpm:
+```json
+"drizzle-graphql": "git+https://github.com/TimMensch/drizzle-graphql.git#dist"
+```
+Grab a specific SHA instead of `dist` if you want to pin to a specific commit. I keep finding things I want to fix, after all,
+and I'm just some guy on the internet. If you're working with something important, by all means, pin so that I don't break anything
+by accident.
+
+If this goes on much longer I'll look into actually creating a package. I'll take suggestions on what to call it. :
+
 ### Fixes in this fork:
 
 * Fix handling of JSONB
