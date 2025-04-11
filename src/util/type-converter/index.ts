@@ -141,7 +141,7 @@ export const drizzleColumnToGraphQLType = <TColumn extends Column, TIsInput exte
 	const noDesc = ['string', 'boolean', 'number'];
 	if (noDesc.find((e) => e === column.dataType)) delete typeDesc.description;
 
-	if (forceNullable) return typeDesc as ConvertedColumn<TIsInput>;
+	if (forceNullable || column?.generated?.type === "always") return typeDesc as ConvertedColumn<TIsInput>;
 	if (column.notNull && !(defaultIsNullable && (column.hasDefault || column.defaultFn))) {
 		return {
 			type: new GraphQLNonNull(typeDesc.type),

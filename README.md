@@ -2,6 +2,17 @@
 
 Automatically create GraphQL schema or customizable schema config fields from Drizzle ORM schema
 
+## NOTES
+
+This fork is being maintained by Tim Mensch. The original repo is being very slow to apply PRs, and I'm adding my updates here
+to fix generation errors that are much harder to fix by massaging the output as described below.
+
+### Fixes in this fork:
+
+* Fix handling of JSONB
+* Fix handling of tsvector types
+* Fix handling of generated columns
+
 ## Usage
 
 -   Pass your drizzle database instance and schema into builder to generate `{ schema, entities }` object
