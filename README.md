@@ -27,6 +27,7 @@ If this goes on much longer I'll look into actually creating a package. I'll tak
 
 ### Fixes in this fork:
 
+* Add "Count" to generated types for count queries (PostgreSQL only for now!)
 * Fix handling of JSONB
 * Fix handling of tsvector types
 * Fix handling of generated columns
