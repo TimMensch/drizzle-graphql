@@ -139,6 +139,7 @@ afterAll(async (t) => {
 });
 
 beforeEach(async (t) => {
+	await ctx.db.execute(sql`SET time_zone = '+00:00';`)
 	await ctx.db.execute(sql`CREATE TABLE IF NOT EXISTS \`customers\` (
 		\`id\` int AUTO_INCREMENT NOT NULL,
 		\`address\` text NOT NULL,
@@ -161,7 +162,7 @@ beforeEach(async (t) => {
 		\`email\` text,
 		\`big_int\` bigint unsigned,
 		\`birthday_string\` date,
-		\`birthday_date\` date,
+		\`birthday_date\` timestamp,
 		\`created_at\` timestamp NOT NULL DEFAULT (now()),
 		\`role\` enum('admin','user'),
 		\`role1\` text,
@@ -988,7 +989,7 @@ describe.sequential('Query tests', async () => {
 					...PostsFrag
 				}
 			}
-			
+
 			fragment UsersFrag on UsersSelectItem {
 				id
 				name
@@ -1107,7 +1108,7 @@ describe.sequential('Query tests', async () => {
 					...PostsFrag
 				}
 			}
-			
+
 			fragment UsersFrag on UsersSelectItem {
 				id
 				name
@@ -1425,7 +1426,7 @@ describe.sequential('Query tests', async () => {
 							email: "userThree@notmail.com"
 							bigint: "15"
 							birthdayString: "2024-04-02"
-							birthdayDate: "2024-04-02T06:44:41.785Z"
+							birthdayDate: "2024-04-02T00:00:00.000Z"
 							createdAt: "2024-04-02T06:44:41.785Z"
 							role: admin
 							roleText: null

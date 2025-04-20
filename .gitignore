@@ -1,5 +1,4 @@
 node_modules
-dist
 *.sqlite
 drizzle.config.ts
 *.tgz
@@ -16,3 +15,4 @@ tests/Migrations
 drizzle.test-heavy.ts
 changes.md
 tests/isolated.test.ts
+.yarn

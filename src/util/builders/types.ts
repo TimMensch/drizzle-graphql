@@ -118,7 +118,7 @@ export type GetColumnGqlInsertDataType<TColumn extends Column> = TColumn['dataTy
 
 export type GetColumnGqlUpdateDataType<TColumn extends Column> = TColumn['dataType'] extends 'boolean'
 	? boolean | null | undefined
-	: TColumn['dataType'] extends 'json' ? TColumn['_']['columnType'] extends 'PgGeometryObject' ? 
+	: TColumn['dataType'] extends 'json' ? TColumn['_']['columnType'] extends 'PgGeometryObject' ?
 				| {
 					x: number;
 					y: number;
@@ -133,7 +133,7 @@ export type GetColumnGqlUpdateDataType<TColumn extends Column> = TColumn['dataTy
 	: TColumn['dataType'] extends 'buffer' ? number[] | null | undefined
 	: TColumn['dataType'] extends 'array' ? TColumn['columnType'] extends 'PgVector' ? number[] | null | undefined
 		: TColumn['columnType'] extends 'PgGeometry' ? [number, number] | null | undefined
-		: 
+		:
 			| Array<
 				GetColumnGqlDataType<TColumn extends { baseColumn: Column } ? TColumn['baseColumn'] : never> extends
 					infer InnerColType ? InnerColType extends null | undefined ? never
@@ -210,11 +210,13 @@ export type GeneratedTableTypesInputs = {
 export type GeneratedTableTypesOutputs<WithReturning extends boolean> = WithReturning extends true ? {
 		selectSingleOutput: GraphQLObjectType;
 		selectArrOutput: GraphQLNonNull<GraphQLList<GraphQLNonNull<GraphQLObjectType>>>;
+		aggregateCountOutput: GraphQLObjectType;
 		singleTableItemOutput: GraphQLObjectType;
 		arrTableItemOutput: GraphQLNonNull<GraphQLList<GraphQLNonNull<GraphQLObjectType>>>;
 	}
 	: {
 		selectSingleOutput: GraphQLObjectType;
+		aggregateCountOutput: GraphQLObjectType;
 		selectArrOutput: GraphQLNonNull<GraphQLList<GraphQLNonNull<GraphQLObjectType>>>;
 	};
 
