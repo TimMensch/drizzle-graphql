@@ -381,6 +381,15 @@ const generateSelectFields = <TWithOrder extends boolean>(
 	return { order, filters, tableFields, relationFields } as SelectData<TWithOrder>;
 };
 
+export const aggregateCountOutput = new GraphQLObjectType({
+	name: "AggregateCount",
+	fields: {
+		count: {
+			type: new GraphQLNonNull(GraphQLInt),
+		},
+	},
+});
+
 export const generateTableTypes = <
 	WithReturning extends boolean,
 >(
@@ -458,12 +467,14 @@ export const generateTableTypes = <
 			? {
 				selectSingleOutput,
 				selectArrOutput,
+				aggregateCountOutput,
 				singleTableItemOutput: singleTableItemOutput!,
 				arrTableItemOutput: arrTableItemOutput!,
 			}
 			: {
 				selectSingleOutput,
 				selectArrOutput,
+				aggregateCountOutput,
 			}
 	) as GeneratedTableTypesOutputs<WithReturning>;
 
